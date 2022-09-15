@@ -1,0 +1,43 @@
+#!/bin/bash
+# To loop over babies and scan types for anonymization of HBCD pilots
+	# utilizes hbcd_pilot_anonymizer.py written by Ron Yang
+# ================================================================ Maeve Boylan, Sept 2022 
+# tell me when script starts
+date +"%r"
+echo "Anonymizing HBCD DICOMs. Starting with: "
+
+# define scan names as each is in its own folder. THIS SHOULD NOT BE CHANGED PER BABY
+# Note: these are the only scans UF has currently 
+	s="B1_MAP LOCALIZER MRS_LOCALIZER QALAS T1 T2" 
+	
+# set info for each baby HBCD ID. THIS SHOULD BE MODIFIED PER BABY
+	subInfo=`cat subInfo.txt` 
+	
+# loop over multiple babies, if necessary
+for baby in $subInfo
+do
+	hbcdID=`echo $baby | cut -d "z" -f1`
+	age=`echo $baby | cut -d "z" -f2`
+	echo $hbcdID
+	echo $age
+	
+	# loop over scan types, giving each its own folder
+	for scan in $s
+	do
+		echo $scan
+		python3 ~/dicom-anonymizer/hbcd_pilot_anonymizer.py -i /Volumes/AMRIS-AMRIS3TS\$/Scott/$hbcdID/$scan -t ~/Desktop/Anonymized/$hbcdID/$scan -p $hbcdID -d $hbcdID -a $age
+		
+		# move only DICOM images to main scan folder & remove DICOM folder and DICOMDIR folder
+		# this is to ensure it has the proper folder structure, without having to manually do it
+		mv ~/Desktop/Anonymized/$hbcdID/$scan/DICOM/* ~/Desktop/Anonymized/$hbcdID/$scan
+		rm -r ~/Desktop/Anonymized/$hbcdID/$scan/DICOM*
+	done
+	# zip folder for data transfer to UCSD
+		ending=_pilot_test
+		zip_name=$hbcdID$ending
+		tar cvfz ~/Desktop/Anonymized/$zip_name.tar.gz ~/Desktop/Anonymized/$hbcdID
+done
+# tell me when anonymization is finished
+date +"%r" 
+echo "Anonymizing is finished!"
+exit
