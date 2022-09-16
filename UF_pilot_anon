@@ -35,7 +35,8 @@ do
 	# zip folder for data transfer to UCSD
 		ending=_pilot_test
 		zip_name=$hbcdID$ending
-		tar cvfz ~/Desktop/Anonymized/$zip_name.tar.gz ~/Desktop/Anonymized/$hbcdID
+		cd ~/Desktop/Anonymized
+		tar cvfz $zip_name.tar.gz ./$hbcdID
 done
 # tell me when anonymization is finished
 date +"%r" 
